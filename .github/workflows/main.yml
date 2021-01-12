@@ -1,20 +1,48 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
+name: BuildAndRunStuff
 
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ 'main', 'beta' ]
 
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  build-with-bazel:
+    name: ${{matrix.cfg.name}}
+
+    runs-on: ${{matrix.cfg.os}}
+
+    strategy:
+      matrix:
+        cfg:
+          - { name: 'Linux GCC', os: 'ubuntu-20.04', cc: 'gcc', flags: }
+          - { name: 'Linux LLVM/libstdc++', os: 'ubuntu-20.04', cc: 'clang', flags: }
+          - { name: 'Linux LLVM/libc++', os: 'ubuntu-20.04', cc: 'clang', flags: --config=libc++ }
+          - { name: 'MacOS GCC', os: 'macos-10.15', cc: 'gcc-10', flags: }
+          - { name: 'MacOS LLVM/libc++', os: 'macos-10.15', cc: 'clang', flags: --config=libc++ }
+
+    env:
+      CC: ${{matrix.cfg.cc}}
 
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install infrastructure (Linux)
+        if: matrix.cfg.os == 'ubuntu-20.04'
+        run: sudo ln -s /usr/lib/llvm-10/include/c++/v1 /usr/include/c++/v1
+
       - name: build
-        run: bazel build -c opt --dynamic_mode=off //...
+        run: bazel build -c opt --dynamic_mode=off ${{matrix.cfg.flags}} //...
+
+      - name: run (Linux)
+        if: matrix.cfg.os == 'ubuntu-20.04'
+        run: |
+          ldd bazel-bin/sandbox/show_args
+          bazel-bin/sandbox/show_args foo bar quz
+
+      - name: run (MacOS)
+        if: matrix.cfg.os == 'macos-10.15'
+        run: |
+          otool -L bazel-bin/sandbox/show_args
+          bazel-bin/sandbox/show_args foo bar quz
