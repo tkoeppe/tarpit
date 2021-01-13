@@ -18,12 +18,13 @@ jobs:
         cfg:
           - { name: 'Linux GCC', os: 'ubuntu-20.04', cc: 'gcc', flags: }
           - { name: 'Linux LLVM/libstdc++', os: 'ubuntu-20.04', cc: 'clang', flags: }
-          - { name: 'Linux LLVM/libc++', os: 'ubuntu-20.04', cc: 'clang', flags: --config=libc++ }
+          - { name: 'Linux LLVM/libc++', os: 'ubuntu-20.04', cc: 'clang', flags: '--config=libc++' }
           - { name: 'MacOS GCC', os: 'macos-10.15', cc: 'gcc-10', flags: }
-          - { name: 'MacOS LLVM/libc++', os: 'macos-10.15', cc: 'clang', flags: --config=libc++ }
+          - { name: 'MacOS LLVM/libc++', os: 'macos-10.15', cc: 'clang', flags: }
 
     env:
       CC: ${{matrix.cfg.cc}}
+      BAZEL_USE_CPP_ONLY_TOOLCHAIN: 1
 
     steps:
       - uses: actions/checkout@v2
