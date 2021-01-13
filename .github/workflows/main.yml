@@ -39,13 +39,19 @@ jobs:
       - name: run (Linux)
         if: matrix.cfg.os == 'ubuntu-20.04'
         run: |
-          ldd bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
+          ldd bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
 
       - name: run (MacOS)
         if: matrix.cfg.os == 'macos-10.15'
         run: |
-          otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
+          otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
+
+      - name: test (dynamic_mode=off)
+        run: bazel test -c opt --dynamic_mode=off ${{matrix.cfg.flags}} --test_output=errors //...
+
+      - name: test (dynamic_mode=fully)
+        run: bazel test -c opt --dynamic_mode=fully ${{matrix.cfg.flags}} --test_output=errors //...
