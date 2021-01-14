@@ -1,10 +1,11 @@
 #include <dlfcn.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 
 extern "C" {
-using FunPtr = void();
+using FunPtr = void(std::size_t, const char*[]);
 }  // extern "C"
 
 int main(int argc, char* argv[]) {
@@ -23,7 +24,7 @@ int main(int argc, char* argv[]) {
     } else {
       FunPtr* f;
       *reinterpret_cast<void**>(&f) = s;
-      f();
+      f(argc, const_cast<const char**>(argv));
     }
 
     if (dlclose(h) != 0) {

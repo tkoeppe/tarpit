@@ -27,6 +27,10 @@ cc_binary(
     srcs = ["dso_demo.cc"],
     linkshared = 1,
     linkstatic = 1,
+    deps = [
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/strings",
+    ],
 )
 
 cc_binary(
