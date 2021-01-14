@@ -25,4 +25,8 @@ cc_binary(
     srcs = ["dso_demo.cc"],
     linkshared = 1,
     linkstatic = 1,
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/strings",
+    ],
 )
