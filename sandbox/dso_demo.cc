@@ -2,11 +2,14 @@
 #include <cstdlib>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #include "absl/strings/string_view.h"
 #include "absl/container/flat_hash_map.h"
 
 extern "C" void demo_function(std::size_t n, const char* args[]) {
+  static_assert(std::is_same_v<absl::string_view, std::string_view>);
+
   std::puts("I am a function. Here come my arguments.");
 
   absl::flat_hash_map<std::string, std::vector<std::string>> m;
