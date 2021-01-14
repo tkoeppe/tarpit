@@ -6,6 +6,11 @@ on:
     branches: [ 'main', 'beta' ]
 
   workflow_dispatch:
+    inputs:
+      extra_flags:
+        description: "Extra flags to pass to bazel"
+        default: ''
+        required: false
 
 jobs:
   build-with-bazel:
@@ -34,7 +39,10 @@ jobs:
         run: sudo ln -s /usr/lib/llvm-10/include/c++/v1 /usr/include/c++/v1
 
       - name: build
-        run: bazel build -c opt --dynamic_mode=off ${{matrix.cfg.flags}} //...
+        run: bazel build -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
+
+      - name: test
+        run: bazel test  -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
 
       - name: run (Linux)
         if: matrix.cfg.os == 'ubuntu-20.04'
@@ -49,9 +57,3 @@ jobs:
           otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
-
-      - name: test (dynamic_mode=off)
-        run: bazel test -c opt --dynamic_mode=off ${{matrix.cfg.flags}} --test_output=errors //...
-
-      - name: test (dynamic_mode=fully)
-        run: bazel test -c opt --dynamic_mode=fully ${{matrix.cfg.flags}} --test_output=errors //...
