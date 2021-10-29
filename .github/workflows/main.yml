@@ -21,11 +21,11 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { name: 'Linux GCC', os: 'ubuntu-20.04', cc: 'gcc', flags: }
-          - { name: 'Linux LLVM/libstdc++', os: 'ubuntu-20.04', cc: 'clang', flags: }
-          - { name: 'Linux LLVM/libc++', os: 'ubuntu-20.04', cc: 'clang', flags: '--config=libc++' }
-          - { name: 'MacOS GCC', os: 'macos-10.15', cc: 'gcc-10', flags: }
-          - { name: 'MacOS LLVM/libc++', os: 'macos-10.15', cc: 'clang', flags: }
+          - { name: 'Linux GCC', os: 'ubuntu-20.04', cc: 'g++', flags: }
+          - { name: 'Linux LLVM/libstdc++', os: 'ubuntu-20.04', cc: 'clang++', flags: }
+          - { name: 'Linux LLVM/libc++', os: 'ubuntu-20.04', cc: 'clang++', flags: '--config=libc++' }
+          - { name: 'MacOS GCC', os: 'macos-10.15', cc: 'g++-10', flags: }
+          - { name: 'MacOS LLVM/libc++', os: 'macos-10.15', cc: 'clang++', flags: }
 
     env:
       CC: ${{matrix.cfg.cc}}
@@ -39,10 +39,10 @@ jobs:
         run: sudo ln -s /usr/lib/llvm-10/include/c++/v1 /usr/include/c++/v1
 
       - name: build
-        run: bazel build                     -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
+        run: bazel build                     --show_result=100 -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
 
       - name: test
-        run: bazel test --test_output=errors -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
+        run: bazel test --test_output=errors --show_result=100 -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
 
       - name: run (Linux)
         if: matrix.cfg.os == 'ubuntu-20.04'
