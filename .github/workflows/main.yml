@@ -21,11 +21,11 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { name: 'Linux GCC', os: 'ubuntu-22.04', cc: 'g++', flags: }
-          - { name: 'Linux LLVM/libstdc++', os: 'ubuntu-22.04', cc: 'clang++', flags: }
-          - { name: 'Linux LLVM/libc++', os: 'ubuntu-22.04', cc: 'clang++', flags: '--config=libc++' }
-          - { name: 'MacOS GCC', os: 'macos-11', cc: 'g++-11', flags: }
-          - { name: 'MacOS LLVM/libc++', os: 'macos-11', cc: 'clang++', flags: }
+          - { name: 'Linux GCC',            output: 'linux_gcc_libstdcxx',  os: 'ubuntu-22.04', cc: 'g++',     flags: }
+          - { name: 'Linux LLVM/libstdc++', output: 'linux_llvm_libstdcxx', os: 'ubuntu-22.04', cc: 'clang++', flags: }
+          - { name: 'Linux LLVM/libc++',    output: 'linux_llvm_libcxx',    os: 'ubuntu-22.04', cc: 'clang++', flags: '--config=libc++' }
+          - { name: 'MacOS GCC',            output: 'macos_gcc_libstdcxx',  os: 'macos-11',     cc: 'g++-11',  flags: }
+          - { name: 'MacOS LLVM/libc++',    output: 'macos_llvm_libcxx',    os: 'macos-11',     cc: 'clang++', flags: }
 
     env:
       CC: ${{matrix.cfg.cc}}
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install infrastructure (Linux)
+      - name: install infrastructure (Linux)
         if: matrix.cfg.os == 'ubuntu-22.04'
         run: sudo ln -s /usr/lib/llvm-10/include/c++/v1 /usr/include/c++/v1
 
@@ -57,3 +57,11 @@ jobs:
           otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
+
+      - name: make tarball
+        run: tar cf output-${{matrix.cfg.output}}.tar -C bazel-bin/sandbox dso_demo.so dso_loader dso_test show_args
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: upload artifacts
+          path: output-${{matrix.cfg.output}}.tar
