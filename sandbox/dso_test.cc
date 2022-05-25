@@ -1,14 +1,19 @@
 #include <dlfcn.h>
 
-#include "absl/strings/str_cat.h"
+#include <string>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "lib/runfiles_for_test.h"
+
+namespace {
 
 TEST(DSOTest, LoadDSO) {
-  const char* srcdir = std::getenv("TEST_SRCDIR");
-  ASSERT_FALSE(srcdir == nullptr);
+  auto runfiles_or = tarpit::CreateRunfilesForTest();
+  ASSERT_TRUE(runfiles_or.ok()) << runfiles_or.status();
 
-  void* h = dlopen(absl::StrCat(srcdir, "/tarpit/sandbox/dso_demo.so").c_str(), RTLD_NOW);
+  auto& runfiles = **runfiles_or;
+  void* h = dlopen(runfiles.Rlocation("tarpit/sandbox/dso_demo.so").c_str(), RTLD_NOW);
   ASSERT_FALSE(h == nullptr) << dlerror();
 
   void* s = dlsym(h, "demo_function");
@@ -16,3 +21,5 @@ TEST(DSOTest, LoadDSO) {
 
   EXPECT_EQ(0, dlclose(h)) << dlerror();
 }
+
+}  // namespace

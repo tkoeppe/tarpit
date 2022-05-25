@@ -15,7 +15,7 @@ cc_test(
     data = [":dso_demo.so"],
     linkopts = ["-ldl"],
     deps = [
-        "@com_google_absl//absl/strings",
+        "//lib:runfiles_for_test",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -25,4 +25,15 @@ cc_binary(
     srcs = ["dso_demo.cc"],
     linkshared = 1,
     linkstatic = 1,
+)
+
+cc_binary(
+    name = "data_haver",
+    srcs = ["data_haver.cc"],
+    data = [":dso_demo.so"],
+    linkopts = ["-ldl"],
+    deps = [
+        "//lib:runfiles",
+        "@bazel_tools//tools/cpp/runfiles",
+    ],
 )
