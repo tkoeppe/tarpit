@@ -37,3 +37,10 @@ cc_binary(
         "@bazel_tools//tools/cpp/runfiles",
     ],
 )
+
+cc_binary(
+    name = "dlopen_benchmark",
+    srcs = ["dlopen_benchmark.cc"],
+    linkopts = ["-ldl"],
+    deps = ["@com_google_benchmark//:benchmark"],
+)
