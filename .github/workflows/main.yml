@@ -32,7 +32,8 @@ jobs:
       BAZEL_USE_CPP_ONLY_TOOLCHAIN: 1
 
     steps:
-      - uses: actions/checkout@v2
+      - name: check out repository
+        uses: actions/checkout@v2
 
       - name: install infrastructure (Linux)
         if: matrix.cfg.os == 'ubuntu-22.04'
@@ -61,7 +62,8 @@ jobs:
       - name: make tarball
         run: tar cf output-${{matrix.cfg.output}}.tar -C bazel-bin/sandbox dso_demo.so dso_loader dso_test show_args
 
-      - uses: actions/upload-artifact@v2
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
         with:
-          name: upload artifacts
+          name: build_outputs.zip
           path: output-${{matrix.cfg.output}}.tar
