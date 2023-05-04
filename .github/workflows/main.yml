@@ -24,8 +24,8 @@ jobs:
           - { name: 'Linux GCC',            output: 'linux_gcc_libstdcxx',  os: 'ubuntu-22.04', cc: 'g++',     flags: }
           - { name: 'Linux LLVM/libstdc++', output: 'linux_llvm_libstdcxx', os: 'ubuntu-22.04', cc: 'clang++', flags: }
           - { name: 'Linux LLVM/libc++',    output: 'linux_llvm_libcxx',    os: 'ubuntu-22.04', cc: 'clang++', flags: '--config=libc++' }
-          - { name: 'MacOS GCC',            output: 'macos_gcc_libstdcxx',  os: 'macos-11',     cc: 'g++-11',  flags: }
-          - { name: 'MacOS LLVM/libc++',    output: 'macos_llvm_libcxx',    os: 'macos-11',     cc: 'clang++', flags: }
+          - { name: 'MacOS GCC',            output: 'macos_gcc_libstdcxx',  os: 'macos-12',     cc: 'g++-11',  flags: }
+          - { name: 'MacOS LLVM/libc++',    output: 'macos_llvm_libcxx',    os: 'macos-12',     cc: 'clang++', flags: }
 
     env:
       CC: ${{matrix.cfg.cc}}
@@ -48,13 +48,15 @@ jobs:
       - name: run (Linux)
         if: matrix.cfg.os == 'ubuntu-22.04'
         run: |
+          file bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
           ldd bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
 
       - name: run (MacOS)
-        if: matrix.cfg.os == 'macos-11'
+        if: matrix.cfg.os == 'macos-12'
         run: |
+          file bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
           otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
