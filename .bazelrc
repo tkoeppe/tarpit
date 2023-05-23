@@ -1,7 +1,12 @@
 build --cxxopt=-std=c++17
+build --enable_platform_specific_config
 
 build:libc++ --repo_env=CXXFLAGS=-stdlib=libc++
 build:libc++ --repo_env=LDFLAGS=-stdlib=libc++
 build:libc++ --repo_env=BAZEL_CXXOPTS=-stdlib=libc++
 build:libc++ --repo_env=BAZEL_LINKOPTS=-lc++:-lm
 build:libc++ --linkopt=-fuse-ld=lld
+
+build:macos --crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --host_crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --apple_crosstool_top=@local_config_apple_cc//:toolchain

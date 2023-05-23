@@ -21,11 +21,13 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { name: 'Linux GCC',             output: 'linux_gcc_libstdcxx',  os: 'ubuntu-22.04', cc: 'g++',     flags: }
-          - { name: 'Linux LLVM/libstdc++',  output: 'linux_llvm_libstdcxx', os: 'ubuntu-22.04', cc: 'clang++', flags: }
-          - { name: 'Linux LLVM/libc++',     output: 'linux_llvm_libcxx',    os: 'ubuntu-22.04', cc: 'clang++', flags: '--config=libc++' }
-          - { name: 'MacOS 12 LLVM/libc++',  output: 'macos_llvm_libcxx',    os: 'macos-12',     cc: 'clang++', flags: '--linkopt=-Wl,-no_fixup_chains' }
-          - { name: 'MacOS 13 LLVM/libc++',  output: 'macos_llvm_libcxx',    os: 'macos-13',     cc: 'clang++', flags: '--linkopt=-Wl,-no_fixup_chains' }
+          - { name: 'Linux GCC',                   output: 'linux_gcc_libstdcxx',      os: 'ubuntu-22.04', cc: 'g++',     flags: }
+          - { name: 'Linux LLVM/libstdc++',        output: 'linux_llvm_libstdcxx',     os: 'ubuntu-22.04', cc: 'clang++', flags: }
+          - { name: 'Linux LLVM/libc++',           output: 'linux_llvm_libcxx',        os: 'ubuntu-22.04', cc: 'clang++', flags: '--config=libc++' }
+          - { name: 'MacOS 12 LLVM/libc++',        output: 'macos_llvm_libcxx_x86-64', os: 'macos-12',     cc: 'clang++', flags: '--linkopt=-Wl,-no_fixup_chains --config=macos' }
+          - { name: 'MacOS 13 LLVM/libc++',        output: 'macos_llvm_libcxx_x86-64', os: 'macos-13',     cc: 'clang++', flags: '--linkopt=-Wl,-no_fixup_chains --config=macos' }
+          - { name: 'MacOS 12 ARM64 LLVM/libc++',  output: 'macos_llvm_libcxx_arm64',  os: 'macos-12',     cc: 'clang++', flags: '--linkopt=-Wl,-no_fixup_chains --config=macos --cpu=darwin_arm64' }
+          - { name: 'MacOS 13 ARM64 LLVM/libc++',  output: 'macos_llvm_libcxx_arm64',  os: 'macos-13',     cc: 'clang++', flags: '--linkopt=-Wl,-no_fixup_chains --config=macos --cpu=darwin_arm64' }
 
     env:
       CC: ${{matrix.cfg.cc}}
@@ -43,6 +45,7 @@ jobs:
         run: bazel build                     --show_result=100 -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
 
       - name: test
+        if: (!contains(matrix.cfg.name, 'ARM64'))
         run: bazel test --test_output=errors --show_result=100 -c opt --dynamic_mode=off ${{matrix.cfg.flags}} ${{github.event.inputs.extra_flags}} //...
 
       - name: run (Linux)
@@ -53,11 +56,15 @@ jobs:
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
 
-      - name: run (MacOS)
+      - name: run (MacOS, pt1)
         if: matrix.cfg.os == 'macos-12' || matrix.cfg.os == 'macos-13'
         run: |
           file bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
           otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
+
+      - name: run (MacOS, pt 2)
+        if: (matrix.cfg.os == 'macos-12' || matrix.cfg.os == 'macos-13') && (!contains(matrix.cfg.name, 'ARM64'))
+        run: |
           bazel-bin/sandbox/show_args foo bar quz
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
 

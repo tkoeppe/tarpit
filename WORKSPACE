@@ -31,3 +31,13 @@ http_archive(
     strip_prefix = "benchmark-main",
     urls = ["https://github.com/google/benchmark/archive/main.zip"],
 )
+
+http_archive(
+    name = "build_bazel_apple_support",
+    sha256 = "9f7bb62c3ae889e0eae8c18458fd8764e2e537687d9a1d85885d6af980e4fc31",
+    url = "https://github.com/bazelbuild/apple_support/releases/download/1.6.0/apple_support.1.6.0.tar.gz",
+)
+
+load("@build_bazel_apple_support//lib:repositories.bzl", "apple_support_dependencies")
+
+apple_support_dependencies()
