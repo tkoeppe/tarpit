@@ -6,9 +6,9 @@ cc_library(
     hdrs = ["runfiles.h"],
     visibility = ["//visibility:public"],
     deps = [
+        "@abseil-cpp//absl/memory",
+        "@abseil-cpp//absl/status:statusor",
         "@bazel_tools//tools/cpp/runfiles",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/status:statusor",
     ],
 )
 
@@ -19,8 +19,8 @@ cc_library(
     hdrs = ["runfiles_for_test.h"],
     visibility = ["//visibility:public"],
     deps = [
+        "@abseil-cpp//absl/memory",
+        "@abseil-cpp//absl/status:statusor",
         "@bazel_tools//tools/cpp/runfiles",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/status:statusor",
     ],
 )

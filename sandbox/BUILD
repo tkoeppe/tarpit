@@ -18,7 +18,7 @@ cc_test(
     linkopts = ["-ldl"],
     deps = [
         "//lib:runfiles_for_test",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -44,5 +44,5 @@ cc_binary(
     name = "dlopen_benchmark",
     srcs = ["dlopen_benchmark.cc"],
     linkopts = ["-ldl"],
-    deps = ["@com_google_benchmark//:benchmark"],
+    deps = ["@google_benchmark//:benchmark"],
 )
