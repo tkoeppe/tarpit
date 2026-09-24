@@ -21,11 +21,14 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { name: 'Linux GCC',            output: 'linux_gcc_libstdcxx',  os: 'ubuntu-24.04',   cc: 'gcc',    cxx: 'g++',     flags: }
-          - { name: 'Linux LLVM/libstdc++', output: 'linux_llvm_libstdcxx', os: 'ubuntu-24.04',   cc: 'clang',  cxx: 'clang++', flags: }
-          - { name: 'Linux LLVM/libc++',    output: 'linux_llvm_libcxx',    os: 'ubuntu-24.04',   cc: 'clang',  cxx: 'clang++', flags: '--config=libc++' }
-          - { name: 'MacOS GCC',            output: 'macos_gcc_libstdcxx',  os: 'macos-15-intel', cc: 'gcc-15', cxx: 'g++-15',  flags: }
-          - { name: 'MacOS LLVM/libc++',    output: 'macos_llvm_libcxx',    os: 'macos-15-intel', cc: 'clang',  cxx: 'clang++', flags: }
+          - { name: 'Linux Intel GCC',            output: 'linux_gcc_libstdcxx',          os: 'ubuntu-24.04',     cc: 'gcc',    cxx: 'g++',     flags: }
+          - { name: 'Linux Intel LLVM/libstdc++', output: 'linux_llvm_libstdcxx',         os: 'ubuntu-24.04',     cc: 'clang',  cxx: 'clang++', flags: }
+          - { name: 'Linux Intel LLVM/libc++',    output: 'linux_llvm_libcxx',            os: 'ubuntu-24.04',     cc: 'clang',  cxx: 'clang++', flags: '--config=libc++' }
+          - { name: 'Linux Arm64 LLVM/libc++',    output: 'linux_llvm_libcxx',            os: 'ubuntu-24.04-arm', cc: 'clang',  cxx: 'clang++', flags: '--config=libc++' }
+          - { name: 'MacOS Intel GCC',            output: 'macos_x86-64_gcc_libstdcxx',   os: 'macos-15-intel',   cc: 'gcc-15', cxx: 'g++-15',  flags: }
+          - { name: 'MacOS Intel LLVM/libc++',    output: 'macos_x86-64_llvm_libcxx',     os: 'macos-15-intel',   cc: 'clang',  cxx: 'clang++', flags: }
+          - { name: 'MacOS Arm64 GCC',            output: 'macos_aarch64_gcc_libstdcxx',  os: 'macos-15',         cc: 'gcc-15', cxx: 'g++-15',  flags: }
+          - { name: 'MacOS Arm64 LLVM/libc++',    output: 'macos_aarch64_llvm_libcxx',    os: 'macos-15',         cc: 'clang',  cxx: 'clang++', flags: }
 
     env:
       CC: ${{matrix.cfg.cc}}
@@ -36,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: install infrastructure (Linux)
-        if: matrix.cfg.os == 'ubuntu-24.04'
+        if: contains(matrix.cfg.os, 'ubuntu-24.04')
         run: |
           sudo apt-get install libc++-dev libc++abi-dev
           sudo ln -s /usr/lib/llvm-18/include/c++/v1 /usr/include/c++/v1
@@ -56,7 +59,7 @@ jobs:
           bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
 
       - name: run (MacOS)
-        if: matrix.cfg.os == 'macos-15-intel'
+        if: contains(matrix.cfg.os, 'macos-15')
         run: |
           file bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_demo.so
           otool -L -H bazel-bin/sandbox/show_args bazel-bin/sandbox/dso_loader bazel-bin/sandbox/dso_test bazel-bin/sandbox/dso_demo.so
