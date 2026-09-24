@@ -1,4 +1,5 @@
 build --cxxopt=-std=c++17
+build --enable_platform_specific_config
 
 build:libc++ --repo_env=CXXFLAGS=-stdlib=libc++
 build:libc++ --repo_env=LDFLAGS=-stdlib=libc++
